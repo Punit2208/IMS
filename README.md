@@ -1,14 +1,13 @@
 # Inventory Management System
 
-This project delivers a FastAPI-powered web application for managing inventory, suppliers, customers, and sales. It exposes a REST API alongside a lightweight HTML dashboard so teams can monitor stock levels, orchestrate purchase orders, and analyse sales performance.
+This project provides a command-line driven Inventory Management System (IMS) built with Python, SQLite, and SQLAlchemy. It supports:
 
-## Features
-
-- **Inventory & Categories** – Track SKUs, pricing, reorder levels, barcode imagery, and categorisation with low stock alerts and valuation reporting.
-- **Suppliers & Purchasing** – Maintain supplier relationships, create purchase orders, receive shipments, and analyse on-time performance.
-- **Customers & Orders** – Capture customer profiles, loyalty balances, sales orders, payments, and outstanding balances.
-- **Reporting & Analytics** – Export inventory snapshots, review sales trends, and view KPIs on the built-in dashboard.
-- **Automation** – Auto-generate purchase orders for items falling below their reorder thresholds.
+- Item and category management, including barcode generation and inventory adjustments.
+- Supplier tracking with purchase orders, inbound shipments, and performance analytics.
+- Customer relationship management with loyalty programs and outstanding balance tracking.
+- Order processing, payment tracking, and automated stock movements.
+- Reporting dashboards for sales, inventory status, and supplier metrics.
+- Role-based user registry with activity logs.
 
 ## Getting Started
 
@@ -19,36 +18,34 @@ This project delivers a FastAPI-powered web application for managing inventory, 
    pip install -r requirements.txt
    ```
 
-3. Launch the web application with Uvicorn:
+3. Initialise the database:
 
    ```bash
-   uvicorn ims.app:app --reload
+   python -m ims.cli initdb
    ```
 
-   The dashboard will be available at [http://localhost:8000/](http://localhost:8000/) and the interactive API documentation at [http://localhost:8000/docs](http://localhost:8000/docs).
+## Usage
 
-4. (Optional) Remove the SQLite database file `ims/ims.sqlite3` to reset the environment.
+The CLI exposes high-level commands. Examples:
 
-## API Overview
+```bash
+python -m ims.cli add_category "Electronics"
+python -m ims.cli add_item SKU-001 "Laptop" --unit-price 899.99 --stock-quantity 10 --reorder-level 2
+python -m ims.cli create_supplier "Tech Supplies" "Alex Doe"
+python -m ims.cli create_customer "Jane Smith" --email jane@example.com
+python -m ims.cli create_purchase_order 1 1:5:799.99 --expected-days 7
+python -m ims.cli receive_shipment 1 "Alex" 1:5
+python -m ims.cli create_order 1 1:1
+python -m ims.cli reports summary
+```
 
-The REST API is organised into functional groups:
+To export inventory to CSV:
 
-| Area | Base Path | Highlights |
-| --- | --- | --- |
-| Inventory | `/inventory` | Manage categories, items, stock adjustments, barcode exports, and valuation metrics. |
-| Suppliers | `/suppliers` | CRUD, item linking, purchase history, outstanding balances, and performance metrics. |
-| Supply Chain | `/supply` | Create purchase orders, receive shipments, view expected receipts, and trigger auto-reorders. |
-| Customers | `/customers` | Manage profiles, balances, and loyalty programs. |
-| Orders | `/orders` | Create orders, update status, record payments, and review outstanding balances. |
-| Reports | `/reports` | Retrieve sales summaries, inventory status, trends, and CSV exports. |
+```bash
+python -m ims.cli export_inventory_csv inventory.csv
+```
 
-Refer to the interactive Swagger UI for detailed request/response schemas.
+## Development
 
-## Development Notes
+The project stores state in `ims/ims.sqlite3`. Delete the file to reset data during local development.
 
-- SQLAlchemy powers persistence with a bundled SQLite database located at `ims/ims.sqlite3`.
-- Pydantic models in `ims/schemas.py` define the API contract between services and routes.
-- Services encapsulate domain logic and are reused across both the API and HTML dashboard.
-- The dashboard templates live under `ims/templates/` and render summary analytics using the same services.
-
-Contributions and enhancements are welcome—fork the repository, make your changes, and open a pull request.
