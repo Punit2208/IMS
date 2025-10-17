@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Inventory Management Dashboard</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0 1.5rem 2rem;
+        background: #f5f7fb;
+        color: #222;
+      }
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.5rem 0;
+      }
+      h1 {
+        margin: 0;
+        font-size: 1.75rem;
+      }
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+      }
+      .card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.25rem;
+        box-shadow: 0 4px 10px rgba(15, 35, 95, 0.08);
+      }
+      .card h2 {
+        margin-top: 0;
+        font-size: 1rem;
+        color: #516391;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+      .card p {
+        font-size: 2rem;
+        margin: 0.25rem 0 0;
+        font-weight: bold;
+      }
+      section {
+        margin-bottom: 2.5rem;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        padding: 0.75rem 0.5rem;
+        border-bottom: 1px solid #e0e5f4;
+        text-align: left;
+      }
+      th {
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        color: #516391;
+        letter-spacing: 0.05em;
+      }
+      tbody tr:hover {
+        background: rgba(65, 105, 225, 0.08);
+      }
+      .empty {
+        color: #777;
+        font-style: italic;
+      }
+      footer {
+        text-align: center;
+        color: #8189a8;
+        font-size: 0.85rem;
+        margin-top: 3rem;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Inventory Management Dashboard</h1>
+      <div>{{ summary.total_orders }} orders • {{ summary.total_revenue }} revenue</div>
+    </header>
+
+    <div class="cards">
+      <div class="card">
+        <h2>Total Revenue</h2>
+        <p>{{ "{:.2f}".format(summary.total_revenue) }}</p>
+      </div>
+      <div class="card">
+        <h2>Average Order Value</h2>
+        <p>{{ "{:.2f}".format(summary.average_order_value) }}</p>
+      </div>
+      <div class="card">
+        <h2>Orders Processed</h2>
+        <p>{{ summary.total_orders }}</p>
+      </div>
+      <div class="card">
+        <h2>Inventory Valuation</h2>
+        <p>{{ "{:.2f}".format(valuation) }}</p>
+      </div>
+    </div>
+
+    <section>
+      <h2>Low Stock Alerts</h2>
+      {% if low_stock %}
+      <table>
+        <thead>
+          <tr>
+            <th>SKU</th>
+            <th>Item</th>
+            <th>Quantity</th>
+            <th>Reorder Level</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for alert in low_stock %}
+          <tr>
+            <td>{{ alert.sku }}</td>
+            <td>{{ alert.name }}</td>
+            <td>{{ alert.quantity }}</td>
+            <td>{{ alert.reorder_level }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <p class="empty">All inventory levels are healthy.</p>
+      {% endif %}
+    </section>
+
+    <section>
+      <h2>Expected Receipts</h2>
+      {% if expected %}
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Supplier</th>
+            <th>Status</th>
+            <th>Expected Date</th>
+            <th>Total Cost</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for po in expected %}
+          <tr>
+            <td>#{{ po.id }}</td>
+            <td>{{ po.supplier.company_name }}</td>
+            <td>{{ po.status }}</td>
+            <td>{% if po.expected_date %}{{ po.expected_date }}{% else %}TBD{% endif %}</td>
+            <td>{{ "{:.2f}".format(po.total_cost) }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <p class="empty">No open purchase orders at this time.</p>
+      {% endif %}
+    </section>
+
+    <footer>Powered by the IMS FastAPI service.</footer>
+  </body>
+</html>
